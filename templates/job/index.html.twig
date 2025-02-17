@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello !{% endblock %}
+{% block title %}{{ "page.job_list.title"|trans }}{% endblock %}
 
 {% block body %}
-<div {{ vue_component('Hello') }}></div>
+<div {{ vue_component('JobList') }}></div>
 {% endblock %}
