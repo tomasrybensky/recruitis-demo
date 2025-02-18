@@ -8,6 +8,7 @@
         "@symfony/webpack-encore": "^5.0.0",
         "@types/bazinga-translator": "^3.0.2",
         "core-js": "^3.38.0",
+        "postcss-loader": "^8.1.1",
         "regenerator-runtime": "^0.13.9",
         "ts-loader": "^9.5.2",
         "typescript": "^5.7.3",
@@ -26,7 +27,13 @@
         "build": "encore production --progress"
     },
     "dependencies": {
+        "@heroicons/vue": "^2.2.0",
+        "@tailwindcss/postcss": "^4.0.6",
+        "autoprefixer": "^10.4.20",
+        "axios": "^1.7.9",
         "bazinga-translator": "^6.1.0",
-        "intl-messageformat": "^10.7.15"
+        "intl-messageformat": "^10.7.15",
+        "postcss": "^8.5.2",
+        "tailwindcss": "^4.0.6"
     }
 }
