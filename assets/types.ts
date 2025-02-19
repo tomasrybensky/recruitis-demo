@@ -1,6 +1,11 @@
 interface Job {
     job_id: number;
     title: string;
+    description: string;
+    salaryMin: number | null;
+    salaryMax: number | null;
+    locations: string[];
+    employmentType: string | null;
 }
 
 interface Meta {

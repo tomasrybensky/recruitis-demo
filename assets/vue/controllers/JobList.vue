@@ -8,11 +8,11 @@
               <BriefcaseIcon class="h-6" />
               <div class="min-w-0 flex-auto">
                 <p class="text-sm/6 font-semibold text-gray-900">{{ job.title }}</p>
-                <p class="mt-1 truncate text-xs/5 text-gray-500">{{ job.title }}</p>
+                <p class="mt-1 truncate text-xs/5 text-gray-500">{{ job.locations.join(' | ') }}</p>
               </div>
             </div>
             <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-              <p class="text-sm/6 text-gray-900">{{ job.title }}</p>
+              <p class="text-sm/6 text-gray-900">{{ job.employmentType }}</p>
             </div>
           </div>
         </a>
@@ -65,13 +65,12 @@ const currentPage = ref<number>();
 
 const fetchJobs = async (page: number) => {
   const response: AxiosResponse = await axios.get(`/api/jobs?page=${page}`);
-  const data: JobsApiResponse = JSON.parse(response.data);
+  const data: JobsApiResponse = response.data;
 
   jobs.value = data.payload;
   meta.value = data.meta;
   currentPage.value = page;
 };
-
 
 const totalPages = computed(() => {
   const entriesPerPage = 10;

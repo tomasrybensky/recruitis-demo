@@ -9,7 +9,7 @@ final class JobControllerTest extends WebTestCase
     public function testIndex(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/job');
+        $client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
     }
