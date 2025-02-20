@@ -3,7 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Data\JobApplication;
-use App\Request\GetJobsRequest;
+use App\Data\PaginationSetting;
 use App\Services\JobService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,16 +21,16 @@ final class JobController extends AbstractController
     #[Route('/jobs', name: 'api_jobs')]
     public function index(#[MapQueryParameter] int $page, ValidatorInterface $validator): Response
     {
-        $getJobsRequest = new GetJobsRequest();
-        $getJobsRequest->page = $page;
+        $paginationSetting = new PaginationSetting();
+        $paginationSetting->page = $page;
 
-        $errors = $validator->validate($getJobsRequest);
+        $errors = $validator->validate($paginationSetting);
 
         if (count($errors) > 0) {
             return $this->json(['errors' => (string) $errors], Response::HTTP_BAD_REQUEST);
         }
 
-        $data = $this->jobService->getJobs($getJobsRequest);
+        $data = $this->jobService->getJobs($paginationSetting);
 
         return $this->json($data);
     }
@@ -46,7 +46,10 @@ final class JobController extends AbstractController
     #[Route('/jobs/{id}/apply', name: 'api_job_apply', methods: ['POST'])]
     public function apply(#[MapRequestPayload] JobApplication $jobApplication): Response
     {
-        $this->jobService->applyForJob($jobApplication);
-        return $this->json(['message' => 'Applied for job']);
+        if ($this->jobService->applyForJob($jobApplication)) {
+            return $this->json(['message' => 'Applied for job']);
+        }
+
+        return $this->json(['message' => 'Failed to apply for job'], Response::HTTP_BAD_REQUEST);
     }
 }

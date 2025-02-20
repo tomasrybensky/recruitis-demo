@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Data\JobApplication;
 use App\Data\Job;
+use App\Data\JobApplication;
+use App\Data\PaginationSetting;
 use App\Integrations\Recruitis\ApplyForJobRequest;
 use App\Integrations\Recruitis\GetJobDetailRequest;
 use App\Integrations\Recruitis\GetJobsRequest;
 use App\Integrations\Recruitis\RecruitisConnector;
-use App\Request\GetJobsRequest as GetJobsRequestData;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -22,7 +22,7 @@ class JobService
     ) {
     }
 
-    public function getJobs(GetJobsRequestData $requestData): array
+    public function getJobs(PaginationSetting $requestData): array
     {
         return $this->cache->get('jobs-'.$requestData->page, function (ItemInterface $item) use ($requestData) {
             $request = new GetJobsRequest($requestData->page);
@@ -80,24 +80,14 @@ class JobService
 
     private function fillJobDataObject(array $data): Job
     {
+        $data['jobId'] = $data['job_id'];
+
         $jobDataObject = $this->serializer
             ->denormalize($data, Job::class, 'json');
 
-        $jobDataObject->salaryMin = $data['salary']['min'] ?? null;
-        $jobDataObject->salaryMax = $data['salary']['max'] ?? null;
-
-        if (isset($data['addresses'])) {
-            $locations = [];
-
-            foreach ($data['addresses'] as $location) {
-                if (isset($location['city'])) {
-                    $locations[] = $location['city'];
-                }
-            }
-
-            $jobDataObject->locations = $locations;
-        }
-
+        $jobDataObject->salaryMin = isset($data['salary']['is_min_visible']) ? $data['salary']['min'] ?? null : null;
+        $jobDataObject->salaryMax = isset($data['salary']['is_max_visible']) ? $data['salary']['max'] ?? null : null;
+        $jobDataObject->locations = array_filter(array_column($data['addresses'] ?? [], 'city'));
         $jobDataObject->employmentType = $data['employment']['name'] ?? null;
 
         return $jobDataObject;

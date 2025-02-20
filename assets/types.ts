@@ -1,5 +1,5 @@
 interface Job {
-    job_id: number;
+    jobId: number;
     title: string;
     description: string;
     salaryMin: number | null;

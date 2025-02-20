@@ -21,5 +21,4 @@ class JobApplication
     #[Assert\NotBlank]
     #[Assert\Length(max: 4000)]
     public string $coverLetter;
-
 }

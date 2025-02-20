@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Request;
+namespace App\Data;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class GetJobsRequest
+class PaginationSetting
 {
     #[Assert\NotBlank]
     #[Assert\Positive]

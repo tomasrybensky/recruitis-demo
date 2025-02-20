@@ -7,14 +7,14 @@
     <div class="mt-6 border-t border-gray-100">
       <dl class="divide-y divide-gray-100">
         <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-          <dt class="text-sm/6 font-medium text-gray-900">About</dt>
+          <dt class="text-sm/6 font-medium text-gray-900">{{ translator.trans('page.job_detail.description' )}}</dt>
           <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0" v-html="job.description"></dd>
         </div>
         <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-          <dt class="text-sm/6 font-medium text-gray-900">Salary expectation</dt>
+          <dt class="text-sm/6 font-medium text-gray-900">{{ translator.trans('page.job_detail.salary' )}}</dt>
           <dd v-if="job.salaryMin && job.salaryMax" class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ job.salaryMin }} - {{ job.salaryMax}}</dd>
-          <dd v-else-if="job.salaryMin" class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">From {{ job.salaryMin }}</dd>
-          <dd v-else-if="job.salaryMax" class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">Upto {{ job.salaryMax }}</dd>
+          <dd v-else-if="job.salaryMin" class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ translator.trans('page.job_detail.salary_from' )}} {{ job.salaryMin }}</dd>
+          <dd v-else-if="job.salaryMax" class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ translator.trans('page.job_detail.salary_to' )}} {{ job.salaryMax }}</dd>
         </div>
       </dl>
     </div>
@@ -28,9 +28,12 @@ import axios, {AxiosResponse} from "axios";
 import {Job} from "@/types";
 import {onMounted, ref} from "vue";
 import ApplyForJobForm from "./../components/ApplyForJobForm.vue";
+import {BazingaTranslator} from "bazinga-translator";
 
 const props = defineProps<{ id: number }>();
 
+declare const Translator: BazingaTranslator;
+const translator: BazingaTranslator = Translator
 const job = ref<Job|null>();
 
 const fetchJob = async () => {

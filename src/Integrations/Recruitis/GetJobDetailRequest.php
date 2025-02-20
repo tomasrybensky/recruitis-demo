@@ -15,7 +15,7 @@ class GetJobDetailRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return '/jobs/' . $this->id;
+        return '/jobs/'.$this->id;
     }
 
     protected function defaultQuery(): array
