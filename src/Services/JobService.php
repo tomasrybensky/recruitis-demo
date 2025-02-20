@@ -4,12 +4,13 @@ namespace App\Services;
 
 use App\Data\Job;
 use App\Data\JobApplication;
+use App\Data\JobsResponse;
 use App\Data\PaginationSetting;
 use App\Integrations\Recruitis\ApplyForJobRequest;
 use App\Integrations\Recruitis\GetJobDetailRequest;
 use App\Integrations\Recruitis\GetJobsRequest;
 use App\Integrations\Recruitis\RecruitisConnector;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -17,52 +18,40 @@ class JobService
 {
     public function __construct(
         private RecruitisConnector $connector,
-        private SerializerInterface $serializer,
+        private ParameterBagInterface $parameterBag,
         private CacheInterface $cache,
     ) {
     }
 
-    public function getJobs(PaginationSetting $requestData): array
+    public function getJobs(PaginationSetting $requestData): ?JobsResponse
     {
         return $this->cache->get('jobs-'.$requestData->page, function (ItemInterface $item) use ($requestData) {
             $request = new GetJobsRequest($requestData->page);
             $response = $this->connector->send($request);
 
             if ($response->successful()) {
-                $data = json_decode($response->body(), true);
+                $item->expiresAfter($this->parameterBag->get('cache_ttl'));
 
-                foreach ($data['payload'] as &$job) {
-                    $jobDataObject = $this->fillJobDataObject($job);
-
-                    $job = $this->serializer->normalize($jobDataObject, 'json');
-                }
-
-                $item->expiresAfter(300);
-
-                return $data;
+                return $response->dto();
             }
 
-            return [];
+            return null;
         });
     }
 
-    public function getJob(int $id): array
+    public function getJob(int $id): ?Job
     {
         return $this->cache->get('jobs-'.$id, function (ItemInterface $item) use ($id) {
             $request = new GetJobDetailRequest($id);
             $response = $this->connector->send($request);
 
             if ($response->successful()) {
-                $data = json_decode($response->body(), true);
+                $item->expiresAfter($this->parameterBag->get('cache_ttl'));
 
-                $jobDataObject = $this->fillJobDataObject($data['payload']);
-
-                $item->expiresAfter(300);
-
-                return $this->serializer->normalize($jobDataObject, 'json');
+                return $response->dto();
             }
 
-            return [];
+            return null;
         });
     }
 
@@ -78,18 +67,18 @@ class JobService
         return false;
     }
 
-    private function fillJobDataObject(array $data): Job
+    public static function fillJobDataObject(array $data): Job
     {
-        $data['jobId'] = $data['job_id'];
+        $job = new Job();
+        $job->jobId = $data['job_id'];
+        $job->title = $data['title'];
+        $job->description = $data['description'];
+        $job->salaryMin = isset($data['salary']['is_min_visible']) ? $data['salary']['min'] ?? null : null;
+        $job->salaryMax = isset($data['salary']['is_max_visible']) ? $data['salary']['max'] ?? null : null;
+        $job->locations = array_filter(array_column($data['addresses'] ?? [], 'city'));
+        $job->employmentType = $data['employment']['name'] ?? null;
+        $job->currency = $data['salary']['currency'] ?? null;
 
-        $jobDataObject = $this->serializer
-            ->denormalize($data, Job::class, 'json');
-
-        $jobDataObject->salaryMin = isset($data['salary']['is_min_visible']) ? $data['salary']['min'] ?? null : null;
-        $jobDataObject->salaryMax = isset($data['salary']['is_max_visible']) ? $data['salary']['max'] ?? null : null;
-        $jobDataObject->locations = array_filter(array_column($data['addresses'] ?? [], 'city'));
-        $jobDataObject->employmentType = $data['employment']['name'] ?? null;
-
-        return $jobDataObject;
+        return $job;
     }
 }

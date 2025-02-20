@@ -6,17 +6,17 @@ interface Job {
     salaryMax: number | null;
     locations: string[];
     employmentType: string | null;
+    currency: string | null;
 }
 
 interface Meta {
-    current_page: number;
-    entries_from: number;
-    entries_to: number;
-    entries_total: number;
+    entriesFrom: number;
+    entriesTo: number;
+    entriesTotal: number;
 }
 
 interface JobsApiResponse {
-    payload: Job[];
+    jobs: Job[];
     meta: Meta;
 }
 

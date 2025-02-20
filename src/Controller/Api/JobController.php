@@ -30,17 +30,25 @@ final class JobController extends AbstractController
             return $this->json(['errors' => (string) $errors], Response::HTTP_BAD_REQUEST);
         }
 
-        $data = $this->jobService->getJobs($paginationSetting);
+        $jobsResponse = $this->jobService->getJobs($paginationSetting);
 
-        return $this->json($data);
+        if ($jobsResponse) {
+            return $this->json($jobsResponse);
+        }
+
+        return $this->json(['message' => 'Failed to get jobs'], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/jobs/{id}', name: 'api_job')]
     public function show(int $id): Response
     {
-        $data = $this->jobService->getJob($id);
+        $job = $this->jobService->getJob($id);
 
-        return $this->json($data);
+        if ($job) {
+            return $this->json($job);
+        }
+
+        return $this->json(['message' => 'Failed to get job'], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/jobs/{id}/apply', name: 'api_job_apply', methods: ['POST'])]

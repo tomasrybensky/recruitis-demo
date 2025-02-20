@@ -19,6 +19,7 @@ test('get jobs', function () {
 
     $jobExample = $response['payload'][0];
 
+    // example of what could be tested
     expect(count($jobExample))->toBe(7)
         ->and($jobExample['title'])->toBe('Manažer segmentu trhu ve Fiber tribu KLON LHO 17 (m\z) test&test (m/z) test|@![]();test')
         ->and($jobExample['salaryMin'])->toBe(0)
@@ -34,6 +35,7 @@ test('job detail', function () {
     $client->request('GET', '/api/jobs/431912');
     $job = json_decode($client->getResponse()->getContent(), true);
 
+    // example of what could be tested
     expect(count($job))->toBe(7)
         ->and($job['title'])->toBe('Manažer segmentu trhu ve Fiber tribu KLON LHO 17 (m\z) test&test (m/z) test|@![]();test')
         ->and($job['salaryMin'])->toBe(0)
